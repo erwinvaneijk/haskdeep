@@ -11,8 +11,8 @@ on:
       - opened
       - synchronize
 
-  permissions:
-    contents: read
+permissions:
+  contents: read
 
 jobs:
   ormolu:
