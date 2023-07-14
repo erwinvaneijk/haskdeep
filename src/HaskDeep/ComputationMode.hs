@@ -19,11 +19,12 @@ module HaskDeep.ComputationMode
     md5hash,
     sha1hash,
     sha256hash,
+    sha3_256_hash,
     skein512hash,
   )
 where
 
-import Crypto.Hash.CryptoAPI (MD5, SHA1, SHA256, Skein512_512)
+import Crypto.Hash.CryptoAPI (MD5, SHA1, SHA256, SHA3_256, Skein512_512)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Base16 as BB16
 import qualified Data.Serialize as S
@@ -48,6 +49,9 @@ sha1hash = ComputationMode "sha1" (BB16.encode . S.encode)
 -- | SHA256 computation.
 sha256hash :: ComputationMode SHA256
 sha256hash = ComputationMode "sha256" (BB16.encode . S.encode)
+
+sha3_256_hash :: ComputationMode SHA3_256
+sha3_256_hash = ComputationMode "sha3_256" (BB16.encode . S.encode)
 
 -- | Skein512 computation.
 skein512hash :: ComputationMode Skein512_512

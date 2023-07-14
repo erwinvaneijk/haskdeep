@@ -41,6 +41,7 @@ data OptCompMode
   = OptMD5
   | OptSHA1
   | OptSHA256
+  | OptSHA3
   | OptSkein512
 
 optionsPI :: ParserInfo Options
@@ -126,7 +127,7 @@ optionsP =
               ( long "computation"
                   <> short 'c'
                   <> metavar "MODE"
-                  <> help "md5 | sha1 | sha256 | skein512 - default md5"
+                  <> help "md5 | sha1 | sha256 | sha3 | skein512 - default md5"
                   <> value OptMD5
               )
             <*> configurationP
@@ -136,6 +137,7 @@ parseOptCompMode :: String -> ReadM OptCompMode
 parseOptCompMode "md5" = return OptMD5
 parseOptCompMode "sha1" = return OptSHA1
 parseOptCompMode "sha256" = return OptSHA256
+parseOptCompMode "sha3" = return OptSHA3
 parseOptCompMode "skein512" = return OptSkein512
 parseOptCompMode _ = readerAbort (ShowHelpText mempty)
 
