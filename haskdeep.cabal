@@ -54,6 +54,10 @@ category:           Console, Cryptography, System
 extra-source-files: README.md
 extra-doc-files:    CHANGELOG.md
 
+source-repository head
+  type:     git
+  location: https://github.com/maurotrb/haskdeep.git
+
 executable haskdeep
   hs-source-dirs:   src
   main-is:          Main.hs
