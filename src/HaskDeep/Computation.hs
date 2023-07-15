@@ -43,7 +43,7 @@ import Prelude hiding (FilePath)
 
 -- | Compute @HashSet@ traversing recursively through the directory structure.
 compute ::
-  Hash ctx a =>
+  (Hash ctx a) =>
   HaskDeepConfiguration ->
   ComputationMode a ->
   IO HashSet
