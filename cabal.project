@@ -7,3 +7,7 @@ source-repository-package
   type: git
   location: https://github.com/erwinvaneijk/crypto-conduit.git
   tag: 153c5bf6114ab0314df578a3d636082dd9947997
+
+source-repository-package
+  type: git
+  location: https://github.com/erwinvaneijk/hs-cryptohash-cryptoapi
