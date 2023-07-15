@@ -35,12 +35,11 @@ jobs:
           commit_message: automated ormolu commit
   build:
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         ghc: [9.6.2, 9.4.5, 9.2.8]
         cabal: [3.10]
-
         include:
           - cabal: 3.6
             ghc: 9.2.8
@@ -54,7 +53,6 @@ jobs:
       CONFIG: "--enable-tests --enable-benchmarks"
     steps:
       - uses: actions/checkout@v3
-
       - name: Set up GHC ${{ matrix.ghc }} and Cabal ${{ matrix.cabal }}
         uses: haskell/actions/setup@v2
         id: setup
@@ -63,13 +61,11 @@ jobs:
           # Defaults, added for clarity:
           cabal-version: ${{ matrix.cabal }}
           cabal-update: true
-
       - name: Configure the build
         run: |
           cabal configure --enable-tests --enable-benchmarks --disable-documentation
           cabal build --dry-run
         # The last step generates dist-newstyle/cache/plan.json for the cache key.
-
       - name: Restore cached dependencies
         uses: actions/cache/restore@v3
         id: cache
@@ -79,13 +75,10 @@ jobs:
           path: ${{ steps.setup.outputs.cabal-store }}
           key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
           restore-keys: ${{ env.key }}-
-
       - name: Install dependencies
         run: cabal build all --only-dependencies
-
       - name: Freeze the cabal version info
         run: cabal v2-freeze $CONFIG
-
       # Cache dependencies already here, so that we do not have to rebuild them should the subsequent steps fail.
       - name: Save cached dependencies
         uses: actions/cache/save@v3
@@ -94,15 +87,11 @@ jobs:
         with:
           path: ${{ steps.setup.outputs.cabal-store }}
           key: ${{ steps.cache.outputs.cache-primary-key }}
-
       - name: Build
         run: cabal build all
-
       - name: Run tests
         run: cabal test all
-
       - name: Check cabal file
         run: cabal check
-
       - name: Build documentation
         run: cabal haddock all
