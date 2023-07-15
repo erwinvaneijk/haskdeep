@@ -23,6 +23,7 @@ module HaskDeep
     md5hash,
     sha1hash,
     sha256hash,
+    sha3_256_hash,
     skein512hash,
 
     -- * Computation

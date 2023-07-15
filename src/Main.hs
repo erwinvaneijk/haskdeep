@@ -28,10 +28,12 @@ haskdeep Version = putStrLn haskdeepVersion
 haskdeep (Options OptComputation OptMD5 conf) = execComputation conf md5hash
 haskdeep (Options OptComputation OptSHA1 conf) = execComputation conf sha1hash
 haskdeep (Options OptComputation OptSHA256 conf) = execComputation conf sha256hash
+haskdeep (Options OptComputation OptSHA3 conf) = execComputation conf sha3_256_hash
 haskdeep (Options OptComputation OptSkein512 conf) = execComputation conf skein512hash
 haskdeep (Options OptAudit OptMD5 conf) = execAudit conf md5hash
 haskdeep (Options OptAudit OptSHA1 conf) = execAudit conf sha1hash
 haskdeep (Options OptAudit OptSHA256 conf) = execAudit conf sha256hash
+haskdeep (Options OptAudit OptSHA3 conf) = execAudit conf sha3_256_hash
 haskdeep (Options OptAudit OptSkein512 conf) = execAudit conf skein512hash
 
 execComputation :: Hash ctx a => HaskDeepConfiguration -> ComputationMode a -> IO ()
