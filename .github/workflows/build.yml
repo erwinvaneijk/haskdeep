@@ -34,12 +34,10 @@ jobs:
         with:
           commit_message: automated ormolu commit
   build:
-    runs-on: ${{ matrix.os }}
-    needs: ormolu
     strategy:
       fail-fast: true
       matrix:
-        os: [ "ubuntu-latest" ]
+        os: [ ubuntu-latest ]
         ghc: [ "9.6.2"]
         cabal: [ "3.10"]
 
@@ -50,12 +48,14 @@ jobs:
             ghc: "9.2.8"
           - cabal: "3.8"
             ghc: "9.4.5"
-          - os: "windows-latest"
+          - os: windows-latest
             ghc: "9.6"
             cabal: "3.10"
-          - os: "macos-latest"
+          - os: macos-latest
             ghc: "9.6"
             cabal: "3.10"
+    runs-on: ${{ matrix.os }}
+    needs: ormolu
     env:
       CONFIG: "--enable-tests --enable-benchmarks"
     steps:
