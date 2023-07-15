@@ -24,7 +24,7 @@ jobs:
   ormolu:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: haskell-actions/run-ormolu@v14
         with:
           mode: inplace
@@ -47,7 +47,7 @@ jobs:
             ghc: 9.2.8
           - cabal: 3.8
             ghc: 9.4.5
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     needs: ormolu
     env:
       CONFIG: "--enable-tests --enable-benchmarks"
