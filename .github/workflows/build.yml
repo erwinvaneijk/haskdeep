@@ -1,54 +1,97 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Haskell CI
-
+name: HaskDeep CI/CD
 on:
   push:
     branches:
       - master
+      - main
   pull_request:
+    branches:
+      - main
+      - master
     types:
       - opened
       - synchronize
+
+permissions:
+  pull-requests: write
+  issues: write
+  repository-projects: write
+  contents: write
+
 jobs:
   ormolu:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: mrkkrp/ormolu-action@v5
+      - uses: actions/checkout@v3
+      - uses: haskell-actions/run-ormolu@v14
+        with:
+          mode: inplace
+      - name: apply formatting changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        if: ${{ always() }}
+        with:
+          commit_message: automated ormolu commit
   build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        ghc: [9.6.2, 9.4.5, 9.2.8]
+        cabal: [ "3.10" ]
+        include:
+          - os: ubuntu-latest
+            cabal: "3.8"
+            ghc: 9.2.8
+          - os: ubuntu-latest
+            cabal: "3.8"
+            ghc: 9.4.5
     runs-on: ubuntu-latest
     needs: ormolu
-    strategy:
-      matrix:
-        include:
-          - cabal: "3.6"
-            ghc: "9.2.8"
-          - cabal: "3.8"
-            ghc: "9.2.8"
-          - cabal: "3.8"
-            ghc: "9.4.5"
-          - cabal: "3.10"
     env:
       CONFIG: "--enable-tests --enable-benchmarks"
     steps:
       - uses: actions/checkout@v3
-      - uses: haskell/actions/setup@v2
-        id: setup-haskell-cabal
+      - name: Set up GHC ${{ matrix.ghc }} and Cabal ${{ matrix.cabal }}
+        uses: haskell/actions/setup@v2
+        id: setup
         with:
           ghc-version: ${{ matrix.ghc }}
+          # Defaults, added for clarity:
           cabal-version: ${{ matrix.cabal }}
-      - run: cabal v2-update
-      - run: cabal v2-freeze $CONFIG
-      - uses: actions/cache@v3
+          cabal-update: true
+      - name: Configure the build
+        run: |
+          cabal configure --enable-tests --enable-benchmarks --disable-documentation
+          cabal build --dry-run
+        # The last step generates dist-newstyle/cache/plan.json for the cache key.
+      - name: Restore cached dependencies
+        uses: actions/cache/restore@v3
+        id: cache
+        env:
+          key: ${{ runner.os }}-ghc-${{ steps.setup.outputs.ghc-version }}-cabal-${{ steps.setup.outputs.cabal-version }}
         with:
-          path: |
-            ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
-            dist-newstyle
-          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.ghc }}-
-      - run: cabal v2-build $CONFIG
-      - run: cabal v2-test $CONFIG
-      - run: cabal v2-sdist
-
+          path: ${{ steps.setup.outputs.cabal-store }}
+          key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
+          restore-keys: ${{ env.key }}-
+      - name: Install dependencies
+        run: cabal build all --only-dependencies
+      - name: Freeze the cabal version info
+        run: cabal v2-freeze $CONFIG
+      # Cache dependencies already here, so that we do not have to rebuild them should the subsequent steps fail.
+      - name: Save cached dependencies
+        uses: actions/cache/save@v3
+        # Caches are immutable, trying to save with the same key would error.
+        if: ${{ steps.cache.outputs.cache-primary-key != steps.cache.outputs.cache-matched-key }}
+        with:
+          path: ${{ steps.setup.outputs.cabal-store }}
+          key: ${{ steps.cache.outputs.cache-primary-key }}
+      - name: Build
+        run: cabal build all
+      - name: Run tests
+        run: cabal test all
+      - name: Check cabal file
+        run: cabal check
+      - name: Build documentation
+        run: cabal haddock all

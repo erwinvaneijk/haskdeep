@@ -43,7 +43,7 @@ import Prelude hiding (FilePath)
 
 -- | Compute @HashSet@ traversing recursively through the directory structure.
 compute ::
-  Hash ctx a =>
+  (Hash ctx a) =>
   HaskDeepConfiguration ->
   ComputationMode a ->
   IO HashSet
@@ -66,7 +66,8 @@ compute conf cm = runResourceT $ runConduit $ CCB.sourceDirectoryDeep False root
           h <-
             liftM (runComputation cm) $
               runResourceT $
-                runConduit $ CB.sourceFile fp .| CC.sinkHash
+                runConduit $
+                  CB.sourceFile fp .| CC.sinkHash
           return $ HS.insert (HashInfo fpt s h) hs
 
 getFileSize :: FilePath -> IO Integer

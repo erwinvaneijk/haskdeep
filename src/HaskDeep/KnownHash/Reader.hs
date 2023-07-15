@@ -49,7 +49,8 @@ readHashes ::
 readHashes conf =
   liftM HS.fromList $
     runResourceT $
-      runConduit $ CB.sourceFile (knownHashes conf) .| CA.sinkParser knownHashesP
+      runConduit $
+        CB.sourceFile (knownHashes conf) .| CA.sinkParser knownHashesP
 
 -- Parsers
 

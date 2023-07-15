@@ -36,10 +36,10 @@ haskdeep (Options OptAudit OptSHA256 conf) = execAudit conf sha256hash
 haskdeep (Options OptAudit OptSHA3 conf) = execAudit conf sha3_256_hash
 haskdeep (Options OptAudit OptSkein512 conf) = execAudit conf skein512hash
 
-execComputation :: Hash ctx a => HaskDeepConfiguration -> ComputationMode a -> IO ()
+execComputation :: (Hash ctx a) => HaskDeepConfiguration -> ComputationMode a -> IO ()
 execComputation conf cm = writeHashes conf =<< compute conf cm
 
-execAudit :: Hash ctx a => HaskDeepConfiguration -> ComputationMode a -> IO ()
+execAudit :: (Hash ctx a) => HaskDeepConfiguration -> ComputationMode a -> IO ()
 execAudit conf cm = do
   hashset1 <- readHashes conf
   hashset2 <- compute conf cm
