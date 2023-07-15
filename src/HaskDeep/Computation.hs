@@ -66,7 +66,8 @@ compute conf cm = runResourceT $ runConduit $ CCB.sourceDirectoryDeep False root
           h <-
             liftM (runComputation cm) $
               runResourceT $
-                runConduit $ CB.sourceFile fp .| CC.sinkHash
+                runConduit $
+                  CB.sourceFile fp .| CC.sinkHash
           return $ HS.insert (HashInfo fpt s h) hs
 
 getFileSize :: FilePath -> IO Integer
